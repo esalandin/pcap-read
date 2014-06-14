@@ -2,3 +2,5 @@ pcap-read
 .cproject
 .project
 .settings
+
+pcap-read.dSYM/Contents/Info.plist
