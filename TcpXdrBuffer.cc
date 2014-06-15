@@ -110,6 +110,7 @@ void TcpXdrBuffer::panic()
     for (int i=0; i<xdr_hdr_size;++i)
         fprintf(stderr, "%02X ", xdr_hdr[i]);
     fprintf(stderr, "\n");
+    fflush(stderr);
     free(data);
     data= NULL;
     start= end= 0;

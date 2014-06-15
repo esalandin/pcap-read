@@ -37,10 +37,11 @@ class XdrSocketHashCmp
 public:
     bool operator() (const XdrSocketKey & lhs, const XdrSocketKey & rhs) const
     {
-        return lhs.ip_src.s_addr==rhs.ip_dst.s_addr &&
-               lhs.ip_dst.s_addr==rhs.ip_dst.s_addr &&
-               lhs.port_src==rhs.port_src &&
-               lhs.port_dst==rhs.port_dst;
+    bool rv= lhs.ip_src.s_addr==rhs.ip_src.s_addr &&
+             lhs.ip_dst.s_addr==rhs.ip_dst.s_addr &&
+             lhs.port_src==rhs.port_src &&
+             lhs.port_dst==rhs.port_dst;
+    return rv;
     }
 };
 
@@ -50,6 +51,7 @@ class MultiPortTcpXdrBuffer
 {
 public:
     void add_pkt(const TcpPacket & tcp_pkt);
+    void dump() const;
 private:
     MMPortBufferStore bs_map;
     bool clean;
@@ -87,6 +89,11 @@ void MultiPortTcpXdrBuffer::add_pkt(const TcpPacket & tcp_pkt)
     clean= 0;
 }
 
+void MultiPortTcpXdrBuffer::dump() const
+{
+    printf("size of map= %lu\n", bs_map.size());
+}
+
 //-------------------------------------------------------------------
 int main(int argc, char **argv) 
 { 
@@ -121,6 +128,7 @@ int main(int argc, char **argv)
       TcpPacket tcp_p(packet, header.len);
       tcp_p.dump();
       multi_buffer.add_pkt(tcp_p);
+      multi_buffer.dump();
 
     } //end internal loop for reading packets (all in one file) 
  

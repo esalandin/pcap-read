@@ -1,6 +1,6 @@
 LDFLAGS = -L ../libpcap-1.5.3
 LDLIBS = -lpcap.1.5.3
-CXXFLAGS = -g
+CXXFLAGS = -g -Wall
 CC=c++
 
 OBJS= pcap-read.o TcpPacket.o TcpXdrBuffer.o

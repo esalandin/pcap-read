@@ -127,4 +127,5 @@ void TcpPacket::dump()
             }
         }
     printf("\n");
+    fflush(stdout);
 }
