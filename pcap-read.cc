@@ -17,6 +17,12 @@ public:
     void remove(uint);
     uint xdr_size() const;
     u_char* get_xdr(uint&, bool= 0);
+    void panic();
+    static const uint xdr_type_offset= 0;
+    static const uint xdr_size_offset= 4;
+    static const uint xdr_hdr_size= 8;
+    static const uint xdr_size_max= 10000;
+    static const uint xdr_type_max= 11;
 };
 
 TcpXdrBuffer::TcpXdrBuffer()
@@ -47,13 +53,30 @@ void TcpXdrBuffer::add(u_char *newdata_ptr, uint newdata_len)
     data= static_cast<u_char*>(realloc(data, end+newdata_len));
     memcpy(data+end, newdata_ptr, newdata_len);
     end += newdata_len;
+
+    u_char *xdr_hdr= data+start;
+    if (xdr_size() > xdr_size_max)
+        {
+        panic();
+        return;
+        }
+    if (end - start > xdr_size_max)
+        {
+        panic();
+        return;
+        }
+    if (xdr_hdr[xdr_type_offset] > xdr_type_max)
+        {
+        panic();
+        return;
+        }
 }
 
 void TcpXdrBuffer::remove(uint size)
 {
     if (end < start + size)
         {
-        printf("error remove");
+        panic();
         return;
         }
     start += size;
@@ -62,7 +85,7 @@ void TcpXdrBuffer::remove(uint size)
 
 uint TcpXdrBuffer::xdr_size() const
 {
-    if (end-start<8)
+    if (end-start<xdr_hdr_size)
         {
         return 0;
         }
@@ -70,33 +93,47 @@ uint TcpXdrBuffer::xdr_size() const
     u_char *xdr_header= data+start;
     for (int i=0; i<4; ++i)
         {
-        size = (size << 8) + xdr_header[4+i];
+        size = (size << 8) + xdr_header[xdr_size_offset+i];
         }
     return size;
 }
 
 u_char* TcpXdrBuffer::get_xdr(uint &xdr_size_out, bool want_remove)
 {
+    if (end == start)
+        {
+        xdr_size_out= 0;
+        return NULL;
+        }
     uint xdr_sz= xdr_size();
-    if (xdr_sz==0)
+    if (end-start < xdr_hdr_size+xdr_sz)
         {
+        // we don't have enough data yet
         xdr_size_out= 0;
         return NULL;
         }
-    if (end-start < xdr_sz+8)
-        {
-        xdr_size_out= 0;
-        return NULL;
-        }
-    xdr_size_out= 8+xdr_sz;
     u_char *xdr_ptr= data + start;
+    xdr_size_out= xdr_hdr_size+xdr_sz;
 
     if (want_remove)
         {
-        remove(8+xdr_sz);
+        remove(xdr_hdr_size+xdr_sz);
         }
 
     return xdr_ptr;
+}
+
+void TcpXdrBuffer::panic()
+{
+    fprintf(stderr, "TcpXdrBuffer panic\n");
+    fprintf(stderr, "buffer start= %u; buffer end= %u; buffer size= %d; ", start, end, end-start);
+    u_char *xdr_hdr= data+start;
+    for (int i=0; i<xdr_hdr_size;++i)
+        fprintf(stderr, "%02X ", xdr_hdr[i]);
+    fprintf(stderr, "\n");
+    free(data);
+    data= NULL;
+    start= end= 0;
 }
 
 //-------------------------------------------------------------------
@@ -128,10 +165,10 @@ int main(int argc, char **argv)
     TcpXdrBuffer tcp_buffer;
 
     //----------------- 
-    while ( (packet = pcap_next(handle,&header) ) != 0 && TcpPacket::pkt_counter<40) {
+    while ( (packet = pcap_next(handle,&header) ) != 0 /* && TcpPacket::pkt_counter<40 */) {
       // header contains information about the packet (e.g. timestamp) 
       TcpPacket tcp_p(packet, header.len);
-      tcp_p.dump();
+      // tcp_p.dump();
       tcp_buffer.add(tcp_p.tcp_data, tcp_p.tcp_len);
       u_char *xdr_ptr= NULL;
       uint xdr_size= 0;
