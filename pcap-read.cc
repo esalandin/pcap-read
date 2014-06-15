@@ -47,16 +47,6 @@ public:
 
 typedef std::unordered_map<XdrSocketKey, TcpXdrBuffer, XdrSocketHash, XdrSocketHashCmp> MMPortBufferStore;
 
-class MultiPortTcpXdrBuffer
-{
-public:
-    void add_pkt(const TcpPacket & tcp_pkt);
-    void dump() const;
-private:
-    MMPortBufferStore bs_map;
-    bool clean;
-};
-
 XdrSocketKey::XdrSocketKey(struct in_addr ip1, uint16_t p1, struct in_addr ip2, uint16_t p2) :
                 ip_src(ip1), ip_dst(ip2), port_src(p1), port_dst(p2)
 {
@@ -78,20 +68,6 @@ void XdrSocketKey::dump() const
     printf("%s, ", inet_ntoa(ip_dst));
     printf("%u", port_dst);
     printf("\n");
-}
-
-void MultiPortTcpXdrBuffer::add_pkt(const TcpPacket & tcp_pkt)
-{
-    XdrSocketKey key(tcp_pkt);
-    key.dump();
-    TcpXdrBuffer &tcp_buf= bs_map[key];
-    tcp_buf.add(tcp_pkt.tcp_data, tcp_pkt.tcp_len);
-    clean= 0;
-}
-
-void MultiPortTcpXdrBuffer::dump() const
-{
-    printf("size of map= %lu\n", bs_map.size());
 }
 
 //-------------------------------------------------------------------
@@ -120,18 +96,35 @@ int main(int argc, char **argv)
       return(2); 
     } 
  
-    MultiPortTcpXdrBuffer multi_buffer;
-
+    MMPortBufferStore buffer_store;
+    unsigned int xdr_no= 0;
     //----------------- 
-    while ( (packet = pcap_next(handle,&header) ) != 0 /* && TcpPacket::pkt_counter<40 */) {
+    while ( (packet = pcap_next(handle,&header) ) != 0 ) {
       // header contains information about the packet (e.g. timestamp) 
       TcpPacket tcp_p(packet, header.len);
       tcp_p.dump();
-      multi_buffer.add_pkt(tcp_p);
-      multi_buffer.dump();
+      XdrSocketKey socket_key(tcp_p);
+      socket_key.dump();
+      TcpXdrBuffer &tcp_buf= buffer_store[socket_key];
+      tcp_buf.add(tcp_p.tcp_data, tcp_p.tcp_len);
 
+      uint8_t *xdr_ptr= NULL;
+      unsigned int xdr_size= 0;
+      do
+          {
+          xdr_ptr= tcp_buf.get_xdr(xdr_size, true);
+          if (xdr_ptr)
+              ++xdr_no;
+          printf("xdr_size= %u; ", xdr_size);
+          for (int i=0; i<xdr_size; ++i)
+              {
+              printf("%02X ", xdr_ptr[i]);
+              }
+          printf("\n");
+          }
+      while (xdr_ptr);
     } //end internal loop for reading packets (all in one file) 
- 
+    printf("found %u xdrs\n", xdr_no);
     pcap_close(handle);  //close the pcap file 
  
     return 0;
