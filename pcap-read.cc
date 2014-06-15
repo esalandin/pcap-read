@@ -45,7 +45,7 @@ public:
     }
 };
 
-typedef std::unordered_map<XdrSocketKey, TcpXdrBuffer, XdrSocketHash, XdrSocketHashCmp> MMPortBufferStore;
+typedef std::unordered_map<XdrSocketKey, TcpXdrBuffer, XdrSocketHash, XdrSocketHashCmp> MultiBufferStore;
 
 XdrSocketKey::XdrSocketKey(struct in_addr ip1, uint16_t p1, struct in_addr ip2, uint16_t p2) :
                 ip_src(ip1), ip_dst(ip2), port_src(p1), port_dst(p2)
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
       return(2); 
     } 
  
-    MMPortBufferStore buffer_store;
+    MultiBufferStore buffer_store;
     unsigned int xdr_no= 0;
     //----------------- 
     while ( (packet = pcap_next(handle,&header) ) != 0 ) {
