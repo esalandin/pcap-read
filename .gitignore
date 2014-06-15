@@ -9,3 +9,4 @@ pcap-read.dSYM/Contents/Info.plist
 /pcap-read.o
 /TcpPacket.o
 .DS_Store
+/TcpXdrBuffer.o
