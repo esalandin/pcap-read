@@ -3,7 +3,7 @@ LDLIBS = -lpcap.1.5.3
 CXXFLAGS = -g
 CC=c++
 
-OBJS= pcap-read.o TcpPacket.o
+OBJS= pcap-read.o TcpPacket.o TcpXdrBuffer.o
 
 .PHONY: all test
 

@@ -21,17 +21,17 @@ class TcpPacket {
 
 public:
     pkt_error error;
-    static uint pkt_counter;
-    u_char *data;
-    u_char *ip_data;
-    uint ip_len;
+    static unsigned int pkt_counter;
+    uint8_t *data;
+    uint8_t *ip_data;
+    unsigned int ip_len;
     struct in_addr ip_src, ip_dst;
     uint16_t port_src, port_dst;
-    u_char *tcp_data;
-    uint tcp_len;
+    uint8_t *tcp_data;
+    unsigned int tcp_len;
 
     TcpPacket(void);
-    TcpPacket(const u_char *, int);
+    TcpPacket(const uint8_t *, int);
     ~TcpPacket(void);
     void dump();
 

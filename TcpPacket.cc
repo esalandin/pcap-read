@@ -1,10 +1,10 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 
 #include "TcpPacket.h"
 
-uint TcpPacket::pkt_counter = 0;
+unsigned int TcpPacket::pkt_counter = 0;
 
 TcpPacket::TcpPacket(void)
 {
@@ -20,7 +20,7 @@ TcpPacket::TcpPacket(void)
   tcp_len= 0;
 }
 
-TcpPacket::TcpPacket(const u_char *pcap_pkt, int pcap_len)
+TcpPacket::TcpPacket(const uint8_t *pcap_pkt, int pcap_len)
 {
     pkt_counter++;
     data= NULL;
@@ -38,7 +38,7 @@ TcpPacket::TcpPacket(const u_char *pcap_pkt, int pcap_len)
         error= e_pcap_len;
         return;
         }
-    data= static_cast<u_char *> (malloc(pcap_len));
+    data= static_cast<uint8_t *> (malloc(pcap_len));
     memcpy(data, pcap_pkt, pcap_len);
 
     int ether_type = ((int)(data[12]) << 8) | (int)data[13];
@@ -55,7 +55,7 @@ TcpPacket::TcpPacket(const u_char *pcap_pkt, int pcap_len)
             error= e_len_ether_offset;
             return;
         }
-    u_char *ip_header= data + ether_offset;
+    uint8_t *ip_header= data + ether_offset;
     // http://en.wikipedia.org/wiki/IPv4_header#Header
     int ip_hl= ip_header[0] & 0x0F; // normally 20
     int ip_total_length= (ip_header[2]<<8) + ip_header[3];
@@ -85,7 +85,7 @@ TcpPacket::TcpPacket(const u_char *pcap_pkt, int pcap_len)
     ip_len= ip_total_length - ip_hl*4;
 
     // http://en.wikipedia.org/wiki/Transmission_Control_Protocol#TCP_segment_structure
-    u_char *tcp_hdr= ip_data;
+    uint8_t *tcp_hdr= ip_data;
     port_src= (tcp_hdr[0]<<8) + tcp_hdr[1];
     port_dst= (tcp_hdr[2]<<8) + tcp_hdr[3];
     uint8_t tcp_data_offset= tcp_hdr[12]>>4;
@@ -96,7 +96,7 @@ TcpPacket::TcpPacket(const u_char *pcap_pkt, int pcap_len)
         return;
         }
 
-    uint tcp_header_len= tcp_data_offset*4;
+    unsigned int tcp_header_len= tcp_data_offset*4;
 
     tcp_data= tcp_hdr + tcp_header_len;
     tcp_len= ip_len - tcp_header_len;
@@ -121,7 +121,7 @@ void TcpPacket::dump()
     if (tcp_len>0)
         {
         printf("tcp_data[]= ");
-        for (uint i=0; i<tcp_len && i<32; ++i)
+        for (unsigned int i=0; i<tcp_len && i<32; ++i)
             {
             printf("%02X ", tcp_data[i]);
             }
