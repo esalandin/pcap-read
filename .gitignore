@@ -4,3 +4,7 @@ pcap-read
 .settings
 
 pcap-read.dSYM/Contents/Info.plist
+/captures
+/pcap-read.dSYM
+/pcap-read.o
+/TcpPacket.o
