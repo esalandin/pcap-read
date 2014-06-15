@@ -3,7 +3,7 @@ pcap-read
 .project
 .settings
 
-pcap-read.dSYM/Contents/Info.plist
+pcap-read.dSYM/*
 /captures
 /pcap-read.dSYM
 /pcap-read.o
