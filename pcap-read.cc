@@ -5,70 +5,7 @@
 
 #include "TcpPacket.h"
 #include "TcpXdrBuffer.h"
-
-
-#include <unordered_map>
-class XdrSocketKey
-{
-public:
-    struct in_addr ip_src, ip_dst;
-    uint16_t port_src, port_dst;
-    XdrSocketKey(struct in_addr, uint16_t, struct in_addr, uint16_t);
-    XdrSocketKey(const TcpPacket &);
-    void dump() const;
-};
-
-//hash function needed by stl::map
-class XdrSocketHash
-{
-public:
-    std::size_t
-    operator() (const XdrSocketKey & k) const
-    {
-    size_t h=0;
-    h= k.ip_src.s_addr+3*k.ip_dst.s_addr+5*k.port_src+7*k.port_dst;
-    return h;
-    }
-};
-
-//compare function needed by tl::map
-class XdrSocketHashCmp
-{
-public:
-    bool operator() (const XdrSocketKey & lhs, const XdrSocketKey & rhs) const
-    {
-    bool rv= lhs.ip_src.s_addr==rhs.ip_src.s_addr &&
-             lhs.ip_dst.s_addr==rhs.ip_dst.s_addr &&
-             lhs.port_src==rhs.port_src &&
-             lhs.port_dst==rhs.port_dst;
-    return rv;
-    }
-};
-
-typedef std::unordered_map<XdrSocketKey, TcpXdrBuffer, XdrSocketHash, XdrSocketHashCmp> MultiBufferStore;
-
-XdrSocketKey::XdrSocketKey(struct in_addr ip1, uint16_t p1, struct in_addr ip2, uint16_t p2) :
-                ip_src(ip1), ip_dst(ip2), port_src(p1), port_dst(p2)
-{
-}
-
-XdrSocketKey::XdrSocketKey(const TcpPacket & tcp_pkt) :
-                ip_src(tcp_pkt.ip_src),
-                ip_dst(tcp_pkt.ip_dst),
-                port_src(tcp_pkt.port_src),
-                port_dst(tcp_pkt.port_dst)
-{
-}
-
-void XdrSocketKey::dump() const
-{
-    printf("%s, ", inet_ntoa(ip_src));
-    printf("%u ", port_src);
-    printf("->");
-    printf("%s, ", inet_ntoa(ip_dst));
-    printf("%u", port_dst);
-    printf("\n");
-}
+#include "MTcpXdrBuffer.h"
 
 //-------------------------------------------------------------------
 int main(int argc, char **argv) 
