@@ -10,3 +10,5 @@ pcap-read.dSYM/*
 /TcpPacket.o
 .DS_Store
 /TcpXdrBuffer.o
+/PcapXdrs.o
+/MTcpXdrBuffer.o
