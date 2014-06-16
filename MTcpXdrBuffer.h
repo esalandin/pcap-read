@@ -11,9 +11,11 @@ class XdrSocketKey
 public:
     struct in_addr ip_src, ip_dst;
     uint16_t port_src, port_dst;
+    XdrSocketKey();
     XdrSocketKey(struct in_addr, uint16_t, struct in_addr, uint16_t);
     XdrSocketKey(const TcpPacket &);
     void dump() const;
+    bool isNull() const;
 };
 
 //hash function needed by stl::map

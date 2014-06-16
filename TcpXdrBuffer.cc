@@ -15,7 +15,7 @@ TcpXdrBuffer::~TcpXdrBuffer()
     free(data);
 }
 
-void TcpXdrBuffer::add(uint8_t *newdata_ptr, unsigned int newdata_len)
+void TcpXdrBuffer::add(uint8_t *newdata_ptr, unsigned int newdata_len, unsigned int packet_no)
 {
     if (start==end && end!=0)
         {
@@ -36,17 +36,17 @@ void TcpXdrBuffer::add(uint8_t *newdata_ptr, unsigned int newdata_len)
     uint8_t *xdr_hdr= data+start;
     if (xdr_size() > xdr_size_max)
         {
-        panic();
+        panic(packet_no);
         return;
         }
     if (end - start > xdr_size_max)
         {
-        panic();
+        panic(packet_no);
         return;
         }
     if (xdr_hdr[xdr_type_offset] > xdr_type_max)
         {
-        panic();
+        panic(packet_no);
         return;
         }
 }
@@ -55,7 +55,7 @@ void TcpXdrBuffer::remove(unsigned int size)
 {
     if (end < start + size)
         {
-        panic();
+        panic(0);
         return;
         }
     start += size;
@@ -102,10 +102,10 @@ uint8_t* TcpXdrBuffer::get_xdr(unsigned int &xdr_size_out, bool want_remove)
     return xdr_ptr;
 }
 
-void TcpXdrBuffer::panic()
+void TcpXdrBuffer::panic(unsigned int packet_number)
 {
-    fprintf(stderr, "TcpXdrBuffer panic\n");
-    fprintf(stderr, "buffer start= %u; buffer end= %u; buffer size= %d; ", start, end, end-start);
+    fprintf(stderr, "TcpXdrBuffer panic: ");
+    fprintf(stderr, "packet_number= %u; buffer start= %u; buffer end= %u; buffer size= %d; ", packet_number, start, end, end-start);
     uint8_t *xdr_hdr= data+start;
     for (int i=0; i<xdr_hdr_size;++i)
         fprintf(stderr, "%02X ", xdr_hdr[i]);
