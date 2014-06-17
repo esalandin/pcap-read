@@ -38,7 +38,7 @@ TcpPacket::TcpPacket(const uint8_t *pcap_pkt, int pcap_len)
         error= e_pcap_len;
         return;
         }
-    data= static_cast<uint8_t *> (malloc(pcap_len));
+    data= new uint8_t[pcap_len];
     memcpy(data, pcap_pkt, pcap_len);
 
     int ether_type = ((int)(data[12]) << 8) | (int)data[13];
@@ -106,7 +106,7 @@ TcpPacket::TcpPacket(const uint8_t *pcap_pkt, int pcap_len)
 
 TcpPacket::~TcpPacket(void)
 {
-    free(data);
+    delete[] data;
 }
 
 void TcpPacket::dump()
