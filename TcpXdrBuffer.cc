@@ -141,7 +141,7 @@ void TcpXdrBuffer::panic(unsigned int packet_number)
         fprintf(stderr, "%02X ", xdr_hdr[i]);
     fprintf(stderr, "\n");
     fflush(stderr);
-    free(data);
+    delete[] data;
     data= NULL;
     start= end= 0;
 }
