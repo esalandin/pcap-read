@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "MTcpXdrBuffer.h"
 
 XdrSocketKey::XdrSocketKey()

@@ -19,7 +19,7 @@ public:
     static const unsigned int xdr_size_max= 10000;
     static const unsigned int xdr_type_max= 11;
 private:
-     TcpXdrBuffer& operator=(const TcpXdrBuffer &); //assignment
-     TcpXdrBuffer(const TcpXdrBuffer &); //copy constructor
+    TcpXdrBuffer(const TcpXdrBuffer &); //copy constructor
+    TcpXdrBuffer& operator=(const TcpXdrBuffer &); //assignment
 };
 #endif // TCP_XDR_BUFFER_H

@@ -21,7 +21,7 @@ int main(int argc, char **argv)
   while ((xdr_ptr= pcapXdrSource.get_xdr(xdr_size)) != NULL )
       {
       printf("xdr size= %u; ", xdr_size);
-      for (int i= 0; i<xdr_size && i< 80; ++i)
+      for (unsigned int i= 0; i<xdr_size && i< 80; ++i)
           {
           printf("%02X ", xdr_ptr[i]);
           }

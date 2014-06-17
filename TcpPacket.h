@@ -1,7 +1,6 @@
 #ifndef TCP_PACKET_H
 #define TCP_PACKET_H
 
-#include <netinet/ip.h>
 #include <arpa/inet.h>
 
 enum pkt_error {

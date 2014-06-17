@@ -15,6 +15,19 @@ TcpXdrBuffer::~TcpXdrBuffer()
     free(data);
 }
 
+TcpXdrBuffer::TcpXdrBuffer(const TcpXdrBuffer &rhs)
+{
+	if (rhs.start==rhs.end)
+    {
+        data= NULL;
+        return;
+    }
+    start= 0;
+    end= rhs.end - rhs.start;
+    data= static_cast<uint8_t *>( malloc(end-start));
+    memcpy(data, rhs.data+rhs.start, end-start);
+}
+
 void TcpXdrBuffer::add(uint8_t *newdata_ptr, unsigned int newdata_len, unsigned int packet_no)
 {
     if (start==end && end!=0)
@@ -107,7 +120,7 @@ void TcpXdrBuffer::panic(unsigned int packet_number)
     fprintf(stderr, "TcpXdrBuffer panic: ");
     fprintf(stderr, "packet_number= %u; buffer start= %u; buffer end= %u; buffer size= %d; ", packet_number, start, end, end-start);
     uint8_t *xdr_hdr= data+start;
-    for (int i=0; i<xdr_hdr_size;++i)
+    for (unsigned int i=0; i<xdr_hdr_size;++i)
         fprintf(stderr, "%02X ", xdr_hdr[i]);
     fprintf(stderr, "\n");
     fflush(stderr);
